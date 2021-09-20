@@ -1,0 +1,31 @@
+# fullplay.yml - Create directory; create file; insert text to file; 
+# rename directory, delete directory
+
+---
+- hosts: localhost
+  become: yes
+  tasks:
+    - name: Create directory ansible
+      shell: mkdir ansible
+
+    - name: Create dir1 in ansible
+      shell: mkdir /ansible/dir1
+    
+    - name: Create dir2 in ansible
+      shell: mkdir /ansible/dir2
+
+    - name: Create file fox.txt
+      shell: touch /ansible/dir1/fox.txt
+    
+    - name: Insert text to fox.txt
+      shell: echo "the quick brown fox" >> /ansible/dir1/fox.txt
+    
+    - name: Rename directory
+      shell: mv /ansible/dir2 DIR
+
+    - name: Move fox.txt to DIR
+      shell: mv /ansible/dir1/fox.txt DIR
+
+    - name: delete dir1
+      shell: rm -rf /ansible/dir1
+    
