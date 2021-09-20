@@ -1,0 +1,52 @@
+# lab4.yml
+# lock current users, create new users
+# change/add users to groups
+# echo users status to text file
+
+---
+- hosts: localhost
+  become: yes
+  vars:
+    lock:
+      - bill
+      - juan
+      - susan    
+
+  tasks:
+    - name: Lock users
+      user:
+        name: "{{ item }}"
+        password_lock: yes
+      loop: "{{ lock }}"
+
+# New users: nancy, greg, jeremy
+    - name: Create new user nancy with password
+      shell: useradd -p na123 nancy
+
+    - name: Create new user greg with password
+      shell: useradd -p gr123 greg
+    
+    - name: Create new user jeremy with password
+      shell: useradd -p je123 jeremy
+  
+# Groups: admin, sales - change/add new users to groups
+    - name: Assign greg to sales group
+      shell: usermod -a -G sales greg
+      
+    - name: Assign jeremy to sales group
+      shell: usermod -a -G sales jeremy
+
+    - name: Assign boss to admin group
+      shell: usermod -a -G admin nancy
+
+# View output - users in correct group
+    - name: View groups and new users
+      shell: "tail /etc/group"
+      register: command_output 
+    
+    - debug:
+        var: command_output.stdout_lines 
+
+# Export output - new users, locked users
+    - name: echo content to file 
+      shell: tail -n6 /etc/shadow >> users.txt
