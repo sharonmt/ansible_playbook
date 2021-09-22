@@ -1,0 +1,34 @@
+# grads.yml - Pulling IT Graduates data: 2017 - 2019
+# Output data to csv file: [YEAR] [INTAKE] [GRADUATES]
+# Output Totals of IT Intake and Graduates from 2017 - 2019
+
+---
+- hosts: localhost
+  become: yes
+  tasks:
+    - name: Source IT graduates data
+      uri:
+        url: https://data.gov.sg/api/action/datastore_search?resource_id=115bf8a7-46df-466c-b7fc-375ef3c1b425&q=information
+        return_content: yes
+        method: GET
+      register: itgrads
+
+    - debug:
+        msg: "Year:{{ itgrads.json.result.records[item]['year'] }} Intake:{{ itgrads.json.result.records[item]['intake'] }} Graduates:{{ itgrads.json.result.records[item]['graduates'] }}"
+      loop: "{{ (20,26,28)|list }}" 
+      
+    - name: Output content to file
+      shell: echo "Year:{{ itgrads.json.result.records[item]['year'] }} Intake:{{ itgrads.json.result.records[item]['intake'] }} Graduates:{{ itgrads.json.result.records[item]['graduates'] }}" >> grads.csv
+      loop: "{{ (20,26,28)|list }}"
+
+    - name: Sum total of intake from 2017-2019
+      set_fact:
+        itintake: "{{ itintake|default(0)|int + itgrads.json.result.records[item]['intake']|int }}"
+      loop: "{{ (20,26,28)|list }}"
+    - shell: echo "Total IT Intake 2017-2019:{{ itintake }}" >> grads.csv
+     
+    - name: Sum total of graduates from 2017-2019
+      set_fact:
+        total: "{{ total|default(0)|int + itgrads.json.result.records[item]['graduates']|int }}"
+      loop: "{{ (20,26,28)|list }}"
+    - shell: echo "Total IT Graduates 2017-2019:{{ total }}" >> grads.csv
